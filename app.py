@@ -79,7 +79,8 @@ def measurements_add():
 @login_required
 def measurements():
     user_id = get_current_user_id()
-    measurement = Measurement.query.filter_by(user_id=user_id).order_by(Measurement.date.desc())
+    measurement = Measurement.query.filter_by(user_id=user_id).order_by(
+        Measurement.date.desc())
     return render_template('measurements.html', title='Messungen',
                            measurements=measurement)
 
