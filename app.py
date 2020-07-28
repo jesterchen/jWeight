@@ -6,6 +6,11 @@ from flask_migrate import Migrate
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
 
+import io
+import base64
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
@@ -78,6 +83,23 @@ def measurements():
     return render_template('measurements.html', title='Messungen',
                            measurements=measurement)
 
+
+@app.route('/test/')
+def test():
+    img = io.BytesIO()
+    sns.set_style("dark")
+
+    y = [1, 2, 3, 4, 5]
+    x = [0, 2, 1, 3, 4]
+
+    plt.plot(x, y)
+    plt.savefig(img, format='png')
+    plt.close()
+    img.seek(0)
+
+    plot_url = base64.b64encode(img.getvalue()).decode('utf-8')
+    print(plot_url)
+    return render_template('test.html', plot_url=plot_url)
 
 '''
 end of routes
