@@ -22,29 +22,20 @@ class User(UserMixin, db.Model):
 
 
 @login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 class Measurement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date = db.Column(db.Date, index=True)
-    values = db.relationship('Values', backref='measurement', lazy='dynamic')
-
-
-class MeasureTypes(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(64))
-
-
-class Values(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    measure_id = db.Column(db.Integer, db.ForeignKey('measurement.id'),
-                           nullable=False)
-    measure_type_id = db.Column(db.Integer, db.ForeignKey('measure_types.id'),
-                           nullable=False)
-    value = db.Column(db.Float)
+    weight = db.Column(db.Float)
+    bmi = db.Column(db.Float)
+    body_fat = db.Column(db.Float)
+    muscle = db.Column(db.Float)
+    rm_kcal = db.Column(db.Float)
+    visceral_fat = db.Column(db.Float)
 
 
 '''

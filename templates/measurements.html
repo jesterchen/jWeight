@@ -5,6 +5,11 @@
     <h1>{{ title }}</h1>
     <div class="row">
         <div class="col-md-4">
+        <a class="btn btn-primary" href="{{ url_for('measurements_add') }}">Messung hinzufuegen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
             <table class="table">
                 <tr>
                     <th>Datum</th>
@@ -13,7 +18,7 @@
                     <th>Koerperfett [%]</th>
                     <th>Muskelmasse [%]</th>
                     <th>Grundumsatz [kcal]</th>
-                    <th>Vizeralfett</th>
+                    <th>Viszeralfett</th>
                 </tr>
                 {% for row in measurements %}
                     <tr>

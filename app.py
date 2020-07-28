@@ -54,27 +54,27 @@ def measurements_add():
     form = MeasurementForm()
     if form.validate_on_submit():
         user_id = get_current_user_id()
-        measurement_id = add_measurement(user_id, form.date.data)
-        if measurement_id is not None:
-            weight = form.weight.data if form.weight.data != '' else None
-            bmi = form.bmi.data if form.bmi.data != '' else None
-            body_fat = form.body_Fat.data if form.body_Fat.data != '' else None
-            muscle = form.muscle.data if form.muscle.data != '' else None
-            rm_kcal = form.rm_kcal.data if form.rm_kcal.data != '' else None
-            visceral_fat = form.visceral_fat.data if form.visceral_fat.data != '' else None
-            add_values(measurement_id, weight=weight, bmi=bmi,
-                       body_fat=body_fat, muscle=muscle, rm_kcal=rm_kcal,
-                       visceral_fat=visceral_fat)
+        data = {}
+        data['date'] = form.date.data
+        data['weight'] = form.weight.data
+        data['bmi'] = form.bmi.data if form.bmi.data != '' else None
+        data[
+            'body_fat'] = form.body_Fat.data if form.body_Fat.data != '' else None
+        data['muscle'] = form.muscle.data if form.muscle.data != '' else None
+        data['rm_kcal'] = form.rm_kcal.data if form.rm_kcal.data != '' else None
+        data[
+            'visceral_fat'] = form.visceral_fat.data if form.visceral_fat.data != '' else None
+        measurement_id = add_measurement(user_id, data)
         flash('Messung gespeichert')
-        return redirect(url_for('index'))
-    return render_template('measurements.html', title='Messungen', form=form)
+        return redirect(url_for('measurements'))
+    return render_template('measurement_add.html', title='Messungen', form=form)
 
 
 @app.route('/measurements')
 @login_required
 def measurements():
     user_id = get_current_user_id()
-    measurement = Measurement.query.filter_by(user_id=user_id).order_by('date')
+    measurement = Measurement.query.filter_by(user_id=user_id).order_by(Measurement.date.desc())
     return render_template('measurements.html', title='Messungen',
                            measurements=measurement)
 
@@ -84,25 +84,30 @@ end of routes
 '''
 
 
-def add_measurement(user_id, date):
-    m = Measurement.query.filter_by(user_id=user_id, date=date).scalar()
+def add_measurement(user_id, data):
+    m = Measurement.query.filter_by(user_id=user_id, date=data['date']).scalar()
     if m is None:
         m = Measurement()
-        m.date = date
-        m.user_id = user_id
-        db.session.add(m)
-        db.session.flush()
-        result = m.id
-        db.session.commit()
-        print(f'measurement inserted with id {result}')
-        return result
-    print(f'measurement exists with id {m.id}')
-    return m.id
+    m.date = data['date']
+    m.user_id = user_id
+    m.weight = data['weight']
+    m.bmi = data['bmi']
+    m.body_fat = data['body_fat']
+    m.muscle = data['muscle']
+    m.rm_kcal = data['rm_kcal']
+    m.visceral_fat = data['visceral_fat']
+    db.session.add(m)
+    db.session.flush()
+    result = m.id
+    db.session.commit()
+    print(f'measurement inserted/updated with id {result}')
+    return result
 
 
 def add_values(measurement_id, weight=None, bmi=None, body_fat=None,
                muscle=None, rm_kcal=None, visceral_fat=None):
     pass
+
 
 def get_current_user_id():
     u = User.query.filter_by(username=current_user.username).first()
