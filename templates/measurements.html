@@ -12,23 +12,23 @@
         <div class="col-md-4">
             <table class="table">
                 <tr>
-                    <th>Datum</th>
-                    <th>Gewicht [kg]</th>
-                    <th>BMI</th>
-                    <th>Koerperfett [%]</th>
-                    <th>Muskelmasse [%]</th>
-                    <th>Grundumsatz [kcal]</th>
-                    <th>Viszeralfett</th>
+                    <th nowrap>Datum</th>
+                    <th nowrap>Gewicht [kg]</th>
+                    <th nowrap>BMI</th>
+                    <th nowrap>Koerperfett [%]</th>
+                    <th nowrap>Muskelmasse [%]</th>
+                    <th nowrap>Grundumsatz [kcal]</th>
+                    <th nowrap>Viszeralfett</th>
                 </tr>
                 {% for row in measurements %}
                     <tr>
-                        <td>{{ row.date }}</td>
-                        <td>{{ row.weight }}</td>
-                        <td>{{ row.bmi }}</td>
-                        <td>{{ row.body_fat }}</td>
-                        <td>{{ row.muscle }}</td>
-                        <td>{{ row.rm_kcal }}</td>
-                        <td>{{ row.visceral_fat }}</td>
+                        <td nowrap>{{ row.date }}</td>
+                        <td nowrap>{{ row.weight }}</td>
+                        <td nowrap>{{ row.bmi }}</td>
+                        <td nowrap>{{ row.body_fat }}</td>
+                        <td nowrap>{{ row.muscle }}</td>
+                        <td nowrap>{{ row.rm_kcal }}</td>
+                        <td nowrap>{{ row.visceral_fat }}</td>
                     </tr>
                 {% endfor %}
             </table>
