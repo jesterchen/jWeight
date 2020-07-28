@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <h1>{{ title }}</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <table class="table">
+                <tr>
+                    <th>Datum</th>
+                    <th>Gewicht [kg]</th>
+                    <th>BMI</th>
+                    <th>Koerperfett [%]</th>
+                    <th>Muskelmasse [%]</th>
+                    <th>Grundumsatz [kcal]</th>
+                    <th>Vizeralfett</th>
+                </tr>
+                {% for row in measurements %}
+                    <tr>
+                        <td>{{ row.date }}</td>
+                        <td>{{ row.weight }}</td>
+                        <td>{{ row.bmi }}</td>
+                        <td>{{ row.body_fat }}</td>
+                        <td>{{ row.muscle }}</td>
+                        <td>{{ row.rm_kcal }}</td>
+                        <td>{{ row.visceral_fat }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}
