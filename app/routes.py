@@ -21,7 +21,7 @@ def index():
     df = pd.DataFrame(data=d)
     df.set_index('date', inplace=True)
     df = df.sort_index()
-    print(df.head())
+    # print(df.head())
     # g = sns.FacetGrid(df, col="weight")
     # g = sns.pairplot()
     # g.map(plt.hist, "bmi");
@@ -55,7 +55,7 @@ def get_measurements_for_user():
         muscle.append(m.muscle)
         rm_kcal.append(m.rm_kcal)
         visceral_fat.append(m.visceral_fat)
-        circumference.append(m.circumfence)
+        circumference.append(m.circumference)
     d = {'date': date, 'weight': weight, 'bmi': bmi, 'body_fat': body_fat,
          'muscle': muscle, 'rm_kcal': rm_kcal, 'visceral_fat': visceral_fat, 'circumference': circumference}
     return d
