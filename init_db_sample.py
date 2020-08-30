@@ -1,5 +1,5 @@
 from app import app, db
-from models import User, Measurement
+from app.models import User, Measurement
 
 u = User(username='username', email='user@email')
 u.set_password('secret-password')

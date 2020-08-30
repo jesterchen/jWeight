@@ -1,29 +1,14 @@
-from flask import Flask, render_template, redirect, url_for, flash, \
-    get_flashed_messages
-from config import Config
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_bootstrap import Bootstrap
-from flask_login import LoginManager
-
+from app import app, db
 import io
 import base64
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 
-app = Flask(__name__)
-app.config.from_object(Config)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-bootstrap = Bootstrap(app)
-login = LoginManager(app)
-login.login_view = 'login'
-
 from flask_login import current_user, login_user, logout_user, login_required
-from models import User, Measurement
-from forms import LoginForm, MeasurementForm
-from app import app
+from flask import render_template, redirect, url_for, flash, get_flashed_messages
+from app.forms import LoginForm, MeasurementForm
+from app.models import User, Measurement
 
 
 @app.route('/')
@@ -61,6 +46,7 @@ def get_measurements_for_user():
     muscle = []
     rm_kcal = []
     visceral_fat = []
+    circumference = []
     for m in ms:
         date.append(m.date)
         weight.append(m.weight)
@@ -69,8 +55,9 @@ def get_measurements_for_user():
         muscle.append(m.muscle)
         rm_kcal.append(m.rm_kcal)
         visceral_fat.append(m.visceral_fat)
+        circumference.append(m.circumfence)
     d = {'date': date, 'weight': weight, 'bmi': bmi, 'body_fat': body_fat,
-         'muscle': muscle, 'rm_kcal': rm_kcal, 'visceral_fat': visceral_fat}
+         'muscle': muscle, 'rm_kcal': rm_kcal, 'visceral_fat': visceral_fat, 'circumference': circumference}
     return d
 
 
@@ -110,8 +97,8 @@ def measurements_add():
             'body_fat'] = form.body_Fat.data if form.body_Fat.data != '' else None
         data['muscle'] = form.muscle.data if form.muscle.data != '' else None
         data['rm_kcal'] = form.rm_kcal.data if form.rm_kcal.data != '' else None
-        data[
-            'visceral_fat'] = form.visceral_fat.data if form.visceral_fat.data != '' else None
+        data['visceral_fat'] = form.visceral_fat.data if form.visceral_fat.data != '' else None
+        data['circumference'] = form.circumference.data if form.circumference.data != '' else None
         measurement_id = add_measurement(user_id, data)
         flash('Messung gespeichert')
         return redirect(url_for('measurements'))
@@ -128,11 +115,6 @@ def measurements():
                            measurements=measurement)
 
 
-'''
-end of routes
-'''
-
-
 def add_measurement(user_id, data):
     m = Measurement.query.filter_by(user_id=user_id, date=data['date']).scalar()
     if m is None:
@@ -145,6 +127,7 @@ def add_measurement(user_id, data):
     m.muscle = data['muscle']
     m.rm_kcal = data['rm_kcal']
     m.visceral_fat = data['visceral_fat']
+    m.circumference = data['circumference']
     db.session.add(m)
     db.session.flush()
     result = m.id
@@ -161,7 +144,3 @@ def add_values(measurement_id, weight=None, bmi=None, body_fat=None,
 def get_current_user_id():
     u = User.query.filter_by(username=current_user.username).first()
     return u.id
-
-
-if __name__ == '__main__':
-    app.run()
