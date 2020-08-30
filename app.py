@@ -9,6 +9,7 @@ from flask_login import LoginManager
 import io
 import base64
 import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
 
 app = Flask(__name__)
@@ -28,7 +29,49 @@ from app import app
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    img = io.BytesIO()
+    sns.set_style("darkgrid")
+
+    d = get_measurements_for_user()
+    df = pd.DataFrame(data=d)
+    df.set_index('date', inplace=True)
+    df = df.sort_index()
+    print(df.head())
+    # g = sns.FacetGrid(df, col="weight")
+    # g = sns.pairplot()
+    # g.map(plt.hist, "bmi");
+    # g.savefig(img, format='png')
+
+    plt.plot(df[('weight')])
+    plt.savefig(img, format='png')
+    plt.close()
+    img.seek(0)
+
+    plot_url = base64.b64encode(img.getvalue()).decode('utf-8')
+
+    return render_template('index.html', plot_url=plot_url)
+
+
+def get_measurements_for_user():
+    ms = Measurement.query.filter_by(user_id=get_current_user_id()).all()
+    date = []
+    weight = []
+    bmi = []
+    body_fat = []
+    muscle = []
+    rm_kcal = []
+    visceral_fat = []
+    for m in ms:
+        date.append(m.date)
+        weight.append(m.weight)
+        bmi.append(m.bmi)
+        body_fat.append(m.body_fat)
+        muscle.append(m.muscle)
+        rm_kcal.append(m.rm_kcal)
+        visceral_fat.append(m.visceral_fat)
+    d = {'date': date, 'weight': weight, 'bmi': bmi, 'body_fat': body_fat,
+         'muscle': muscle, 'rm_kcal': rm_kcal, 'visceral_fat': visceral_fat}
+    return d
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -84,23 +127,6 @@ def measurements():
     return render_template('measurements.html', title='Messungen',
                            measurements=measurement)
 
-
-@app.route('/test/')
-def test():
-    img = io.BytesIO()
-    sns.set_style("dark")
-
-    y = [1, 2, 3, 4, 5]
-    x = [0, 2, 1, 3, 4]
-
-    plt.plot(x, y)
-    plt.savefig(img, format='png')
-    plt.close()
-    img.seek(0)
-
-    plot_url = base64.b64encode(img.getvalue()).decode('utf-8')
-    print(plot_url)
-    return render_template('test.html', plot_url=plot_url)
 
 '''
 end of routes
