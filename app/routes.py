@@ -14,27 +14,19 @@ from app.models import User, Measurement
 @app.route('/')
 @login_required
 def index():
-    img = io.BytesIO()
-    sns.set_style("darkgrid")
+    images = []
+    for i in ['weight', 'Gewicht'], ['bmi', 'BMI'], ['body_fat', 'Körperfett'], ['muscle', 'Muskelmasse'], \
+             ['rm_kcal', 'Grundumsatz'], ['visceral_fat', 'Viszeralfett'], ['circumference', 'Bauchumfang']:
+        images.append(create_image_from_user_data(i[0], i[1]))
 
-    d = get_measurements_for_user()
-    df = pd.DataFrame(data=d)
-    df.set_index('date', inplace=True)
-    df = df.sort_index()
-    # print(df.head())
-    # g = sns.FacetGrid(df, col="weight")
-    # g = sns.pairplot()
-    # g.map(plt.hist, "bmi");
-    # g.savefig(img, format='png')
+    user_id = get_current_user_id()
+    measurements = Measurement.query.filter_by(user_id=user_id).order_by(
+        Measurement.date.desc())
 
-    plt.plot(df[('weight')])
-    plt.savefig(img, format='png')
-    plt.close()
-    img.seek(0)
+    form = MeasurementForm()
 
-    plot_url = base64.b64encode(img.getvalue()).decode('utf-8')
-
-    return render_template('index.html', plot_url=plot_url)
+    return render_template('index.html', images=images, open_accordion_at='Gewicht', measurements=measurements,
+                           form=form)
 
 
 def get_measurements_for_user():
@@ -101,7 +93,7 @@ def measurements_add():
         data['circumference'] = form.circumference.data if form.circumference.data != '' else None
         measurement_id = add_measurement(user_id, data)
         flash('Messung gespeichert')
-        return redirect(url_for('measurements'))
+        return redirect(url_for('index'))
     return render_template('measurement_add.html', title='Messungen', form=form)
 
 
@@ -144,3 +136,26 @@ def add_values(measurement_id, weight=None, bmi=None, body_fat=None,
 def get_current_user_id():
     u = User.query.filter_by(username=current_user.username).first()
     return u.id
+
+
+def create_image_from_user_data(column_to_show, description, sort_by='date'):
+    img = io.BytesIO()
+    sns.set_style("darkgrid")
+
+    dataset = get_measurements_for_user()
+    df = get_sorted_data_frame(dataset, sort_by)
+
+    plt.plot(df[column_to_show])
+    plt.savefig(img, format='png')
+    plt.close()
+    img.seek(0)
+
+    image = base64.b64encode(img.getvalue()).decode('utf-8')
+    image = f'data:image/png;base64, {image}'
+    return {'image': image, 'description': description}
+
+
+def get_sorted_data_frame(data, sort_by):
+    df = pd.DataFrame(data=data)
+    df.set_index(sort_by, inplace=True)
+    return df.sort_index()

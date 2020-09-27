@@ -1,10 +1,71 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block content %}
     <div class="container">
-        <h1>Hi!</h1>
-        <div>
-            <img src="data:image/png;base64, {{ plot_url }}">
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingMeasurementsAdd">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseMeasurementsAdd" aria-expanded="false"
+                           aria-controls="collapseMeasurementsAdd">
+                            Messung hinzufügen +
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseMeasurementsAdd"
+                     class="panel-collapse collapse" role="tabpanel"
+                     aria-labelledby="headingMeasurementsAdd">
+                    <div class="panel-body">
+                        {{ wtf.quick_form(form, action=url_for('measurements_add')) }}
+                    </div>
+                </div>
+            </div>
+
+            {% for image in images %}
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="heading{{ image.description }}">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                               href="#collapse{{ image.description }}" aria-expanded="false"
+                               aria-controls="collapse{{ image.description }}">
+                                {{ image.description }}
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse{{ image.description }}"
+                         class="panel-collapse collapse {{ "in" if image.description==open_accordion_at }}"
+                         role="tabpanel"
+                         aria-labelledby="heading{{ image.description }}">
+                        <div class="panel-body">
+                            <img src="{{ image.image }}">
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingMeasurements">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseMeasurements" aria-expanded="false"
+                           aria-controls="collapseMeasurements">
+                            Messungen
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseMeasurements"
+                     class="panel-collapse collapse {{ "in" if open_accordion_at=="Messungen" }}" role="tabpanel"
+                     aria-labelledby="headingMeasurements">
+                    <div class="panel-body">
+                        {% include 'measurements.html' %}
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </div>
 {% endblock %}
