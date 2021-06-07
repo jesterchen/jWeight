@@ -1,5 +1,9 @@
 {% extends 'bootstrap/base.html' %}
 
+{% block head %}
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}">
+{% endblock %}
+
 {% block title %}
     {% if title %}{{ title }} - jWeight{% else %}Welcome to jWeight{% endif %}
 {% endblock %}
